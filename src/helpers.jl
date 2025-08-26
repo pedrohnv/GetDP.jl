@@ -81,15 +81,16 @@ function make_args(glist; sep::String=", ", list_char::Bool=false)
         return string(glist)
     end
 end
-"""
-    get_getdp_exe()
 
-Get the path to the GetDP executable.
-"""
-function get_getdp_exe()
-    macos_getdp_location = "/Applications/Getdp.app/Contents/MacOS/getdp"
-    return isfile(macos_getdp_location) ? macos_getdp_location : "getdp"
-end
+# """
+#     get_getdp_exe()
+
+# Get the path to the GetDP executable.
+# """
+# function get_getdp_exe()
+#     macos_getdp_location = "/Applications/Getdp.app/Contents/MacOS/getdp"
+#     return isfile(macos_getdp_location) ? macos_getdp_location : "getdp"
+# end
 
 """
     array2getdplist(l)
@@ -100,11 +101,7 @@ function array2getdplist(l)
     return "{" * join([string(item) for item in l], ",") * "}"
 end
 
-"""
-    get_getdp_major_version(getdp_exe=get_getdp_exe())
 
-Get the major version of GetDP.
-"""
 function get_getdp_major_version(getdp_exe=get_getdp_exe())
     out = read(`$getdp_exe --version`, String)
     ex = split(strip(out), ".")
@@ -129,3 +126,31 @@ end
 
 #     return str_in
 # end
+
+"""
+    get_getdp_executable()
+
+Get the path to the GetDP executable.
+"""
+function get_getdp_executable()
+    # Environment variable takes precedence
+    env_path = get(ENV, "GETDP_EXECUTABLE", nothing)
+    if env_path !== nothing && isfile(env_path)
+        return env_path
+    end
+
+    # Then system installation
+    system_getdp = Sys.which("getdp")
+    system_getdp !== nothing && return system_getdp
+
+    # Otherwise use the one in deps
+    deps_dir = joinpath(@__DIR__, "..", "deps", "getdp")
+    exe_name = Sys.iswindows() ? "getdp.exe" : joinpath("bin", "getdp")
+    exe_path = joinpath(deps_dir, exe_name)
+
+    if !isfile(exe_path)
+        error("GetDP not found. Run Pkg.build(\"GetDP\") to install it.")
+    end
+
+    return exe_path
+end
