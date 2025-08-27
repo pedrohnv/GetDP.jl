@@ -16,10 +16,6 @@ include("getdp_object.jl")
 export AbstractGetDPObject, GetDPObject, SimpleItem, Base_, ObjectItem, CaseItem_, Case_
 export code, add_raw_code!, add_comment!, add!
 
-function get_getdp_executable()
-    return "getdp"
-end
-
 export get_getdp_executable
 
 # Include main components
